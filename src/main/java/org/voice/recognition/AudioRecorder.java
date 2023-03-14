@@ -4,8 +4,6 @@ import javax.sound.sampled.*;
 import java.io.File;
 
 public class AudioRecorder {
-    public static int RECORD_TIME = 5000; // record for 5 seconds
-
     public static void main(String[] args) {
         AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
         DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);

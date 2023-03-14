@@ -3,21 +3,30 @@ package org.voice.recognition;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 public class SpeechToText {
-    public static void main(String[] args) throws Exception {
-        // Instantiates a client
+    public static void printToFile(String outputText, String filePath) {
+        try {
+            FileWriter writer = new FileWriter(filePath);
+            writer.write(outputText);
+            writer.close();
+            System.out.println("Text saved to file at " + filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
         try (SpeechClient speechClient = SpeechClient.create()) {
-
             // The path to the audio file to transcribe
-            String fileName = "audio.wav";
-
-            // Reads the audio file into memory
-            Path path = Paths.get(fileName);
+            String filename = "audio.wav";
+            Path path = Paths.get(filename);
             byte[] data = Files.readAllBytes(path);
             ByteString audioBytes = ByteString.copyFrom(data);
 
@@ -38,7 +47,7 @@ public class SpeechToText {
             // Prints the transcribed text
             for (SpeechRecognitionResult result : results) {
                 SpeechRecognitionAlternative alternative = result.getAlternativesList().get(0);
-                System.out.printf(alternative.getTranscript());
+                printToFile(alternative.getTranscript(), "speech.txt");
             }
         }
     }
