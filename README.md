@@ -1,2 +1,2 @@
 # response-gen
-ChatGPT response from speech
+ChatGPT response from audio speech
