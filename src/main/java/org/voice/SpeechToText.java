@@ -15,13 +15,15 @@ import java.util.List;
 
 public class SpeechToText {
     private final SpeechSettings settings;
-    private String text;
     private final RecognitionConfig config;
+    private String text;
 
     public SpeechToText() throws IOException {
+        // JSON key path
+        String googleAuthKeyPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
         // Load the Google Cloud credentials from a JSON file
         GoogleCredentials credentials = GoogleCredentials.fromStream(
-                new FileInputStream("response-gen-2c889d8e0017.json")
+                new FileInputStream(googleAuthKeyPath)
         );
 
         // Build the SpeechSettings object with the credentials

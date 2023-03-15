@@ -11,7 +11,8 @@ public class Main {
         AudioRecorder audioRecorder = new AudioRecorder();
         audioRecorder.openLine();
 
-        while(true) {
+        System.out.println("Start speaking to chatGPT");
+        while (true) {
             audioRecorder.startRecording("audio.wav");
 
             SpeechToText speechToText = new SpeechToText();

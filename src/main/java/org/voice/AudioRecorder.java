@@ -8,7 +8,6 @@ import java.io.File;
 public class AudioRecorder {
     private final AudioFormat format;
     private final DataLine.Info info;
-
     private TargetDataLine line;
 
     public AudioRecorder() throws LineUnavailableException {
@@ -30,7 +29,6 @@ public class AudioRecorder {
     }
 
     public void closeLine() {
-        // Stop and close the line
         line.stop();
         line.close();
     }
@@ -51,7 +49,7 @@ public class AudioRecorder {
                 out.write(data, 0, numBytesRead);
 
                 // Check if the recording has stopped (i.e., if there's no sound)
-                int silenceThreshold = 100; // adjust as needed
+                int silenceThreshold = 120; // adjust as needed
                 boolean hasSound = false;
                 for (byte b : data) {
                     if (b > silenceThreshold || b < -silenceThreshold) {

@@ -3,8 +3,12 @@ import openai
 import os
 import sys
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Set OpenAI API key
-openai.api_key = "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"
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 text = sys.argv[1]
 
 # Print input text
@@ -16,8 +20,8 @@ response = openai.ChatCompletion.create(
 model='gpt-3.5-turbo',
   messages=[
     {"role": "user", "content": text}],
-max_tokens=50,
-temperature=0,
+max_tokens=35,
+temperature=1,
 )
 
 # Removing newline character from string
@@ -25,7 +29,7 @@ temperature=0,
 res = []
 for sub in response["choices"][0]["message"]["content"]:
     res.append(sub.replace("\n", ""))
-    
+
 # Print the response text
 print("Response: " + "".join(res))
 
