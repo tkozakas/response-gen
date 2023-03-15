@@ -9,6 +9,8 @@ public class AudioRecorder {
     private final AudioFormat format;
     private final DataLine.Info info;
 
+    private TargetDataLine line;
+
     public AudioRecorder() throws LineUnavailableException {
         format = new AudioFormat(16000, 16, 1, true, false);
         info = new DataLine.Info(TargetDataLine.class, format);
@@ -17,41 +19,56 @@ public class AudioRecorder {
         }
     }
 
-    public void startRecording(int timeInSeconds, String fileName) {
+    public void openLine() {
         try {
-            TargetDataLine line = (TargetDataLine) AudioSystem.getLine(info);
+            line = (TargetDataLine) AudioSystem.getLine(info);
             line.open(format);
             line.start();
+        } catch (LineUnavailableException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-            System.out.println("Recording...");
+    public void closeLine() {
+        // Stop and close the line
+        line.stop();
+        line.close();
+    }
 
-            long startTime = System.currentTimeMillis();
-            long duration = timeInSeconds * 1000L; // milliseconds
-
+    public void startRecording(String fileName) {
+        try {
             // Use a buffer to capture the recorded audio data
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-            // Read data from the line and write it to the buffer
+            // Create a flag to indicate when to stop recording
+            boolean stopped = false;
+
+            // Read data from the line and write it to the buffer until stopped
             int numBytesRead;
             byte[] data = new byte[line.getBufferSize() / 5];
-            while (System.currentTimeMillis() - startTime < duration) {
+            while (!stopped) {
                 numBytesRead = line.read(data, 0, data.length);
                 out.write(data, 0, numBytesRead);
-            }
 
-            // Wait for the line to drain before stopping and closing it
-            line.drain();
-            line.stop();
-            line.close();
+                // Check if the recording has stopped (i.e., if there's no sound)
+                int silenceThreshold = 100; // adjust as needed
+                boolean hasSound = false;
+                for (byte b : data) {
+                    if (b > silenceThreshold || b < -silenceThreshold) {
+                        hasSound = true;
+                        break;
+                    }
+                }
+                if (!hasSound) {
+                    stopped = true;
+                }
+            }
 
             // Create an AudioInputStream from the buffered data
             AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(out.toByteArray()), format, out.size());
 
             // Write the audio data to a file
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, new File(fileName));
-
-            System.out.println("Recording complete.");
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }

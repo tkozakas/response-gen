@@ -53,14 +53,14 @@ public class SpeechToText {
             // Performs speech recognition on the audio file
             RecognizeResponse response = speechClient.recognize(config, audio);
             List<SpeechRecognitionResult> results = response.getResultsList();
-
-            System.out.println("Printing the transcribed text");
-            // Prints the transcribed text
-            for (SpeechRecognitionResult result : results) {
-                SpeechRecognitionAlternative alternative = result.getAlternativesList().get(0);
-                text = alternative.getTranscript();
-                System.out.println(text);
+            if (!results.isEmpty()) {
+                // Prints the transcribed text
+                for (SpeechRecognitionResult result : results) {
+                    SpeechRecognitionAlternative alternative = result.getAlternativesList().get(0);
+                    text = alternative.getTranscript();
+                }
             }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
