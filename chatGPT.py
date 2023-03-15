@@ -12,14 +12,20 @@ print("Input: "+ text)
 
 print("Generating...")
 # Generate a response using OpenAI's GPT-3 API
-response = openai.Completion.create(
-    engine="davinci",
-    prompt=format(text),
-    max_tokens=100,
-    n=1,
-    stop=None,
-    temperature=0.1,)
+response = openai.ChatCompletion.create(
+model='gpt-3.5-turbo',
+  messages=[
+    {"role": "user", "content": text}],
+max_tokens=50,
+temperature=0,
+)
+
+# Removing newline character from string
+# using loop
+res = []
+for sub in response["choices"][0]["message"]["content"]:
+    res.append(sub.replace("\n", ""))
     
 # Print the response text
-print("Response: "+ response.choices[0].text)
+print(response["choices"][0]["message"]["content"])
 

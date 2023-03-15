@@ -9,24 +9,25 @@ import java.io.InputStreamReader;
 public class Main {
     public static void main(String[] args) throws IOException, LineUnavailableException {
         AudioRecorder audioRecorder = new AudioRecorder();
-        audioRecorder.startRecording(5, "audio.wav");
+        audioRecorder.startRecording(2, "audio.wav");
 
         SpeechToText speechToText = new SpeechToText();
         speechToText.recognize();
         String text = speechToText.getText();
+        if (!text.isEmpty()) {
+            // create a ProcessBuilder for running the Python program
+            ProcessBuilder pb = new ProcessBuilder("python", "chatGPT.py", text);
+            pb.redirectErrorStream(true); // redirect the error stream to the standard output
+            // start the process
+            Process process = pb.start();
 
-        // create a ProcessBuilder for running the Python program
-        ProcessBuilder pb = new ProcessBuilder("python", "chatGPT.py", text);
-        pb.redirectErrorStream(true); // redirect the error stream to the standard output
-        // start the process
-        Process process = pb.start();
-
-        // read the output of the process
-        InputStream is = process.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
+            // read the output of the process
+            InputStream is = process.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
         }
     }
 }
