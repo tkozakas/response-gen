@@ -1,9 +1,10 @@
-package org.voice;
+package org.response.voice;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
+import lombok.Getter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,8 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
-
+/**
+ * @author Tomas Kozakas
+ */
+@Getter
 public class SpeechToText {
     private final SpeechSettings settings;
     private final RecognitionConfig config;
@@ -66,13 +69,5 @@ public class SpeechToText {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
     }
 }

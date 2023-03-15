@@ -1,10 +1,12 @@
-package org.voice;
+package org.response.voice;
 
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-
+/**
+ * @author Tomas Kozakas
+ */
 public class AudioRecorder {
     private final AudioFormat format;
     private final DataLine.Info info;
