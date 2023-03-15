@@ -1,4 +1,5 @@
-package org.voice;
+import org.voice.AudioRecorder;
+import org.voice.SpeechToText;
 
 import javax.sound.sampled.LineUnavailableException;
 import java.io.BufferedReader;

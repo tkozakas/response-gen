@@ -49,7 +49,7 @@ public class AudioRecorder {
                 out.write(data, 0, numBytesRead);
 
                 // Check if the recording has stopped (i.e., if there's no sound)
-                int silenceThreshold = 120; // adjust as needed
+                int silenceThreshold = 115; // adjust as needed
                 boolean hasSound = false;
                 for (byte b : data) {
                     if (b > silenceThreshold || b < -silenceThreshold) {
