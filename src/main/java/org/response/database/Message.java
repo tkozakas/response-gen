@@ -2,6 +2,7 @@ package org.response.database;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+
 /**
  * @author Tomas Kozakas
  */

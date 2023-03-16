@@ -37,9 +37,8 @@ public class ResponseApplication {
             speechToText.recognize();
             String userMessage = speechToText.getText();
 
-            System.out.print("Input: " + userMessage);
-
             if (userMessage != null) {
+                System.out.println("Input: " + userMessage);
                 if (userMessage.equals("bye") || userMessage.equals("Bye")) {
                     audioRecorder.closeLine();
                     break;

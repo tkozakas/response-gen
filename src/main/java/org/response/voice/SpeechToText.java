@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+
 /**
  * @author Tomas Kozakas
  */
@@ -37,7 +38,7 @@ public class SpeechToText {
         // Builds the recognition request
         config = RecognitionConfig.newBuilder()
                 .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-                .setLanguageCode("en-US")
+                .setLanguageCode("ru")
                 .setSampleRateHertz(16000)
                 .build();
     }
