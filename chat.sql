@@ -1,9 +1,15 @@
-CREATE TABLE messages
+CREATE TABLE conversations
 (
-    id              integer   DEFAULT nextval('messages'::regclass) NOT NULL,
+    id              SERIAL PRIMARY KEY,
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     user_message    TEXT      NOT NULL,
     chatbot_message TEXT      NOT NULL
 );
 
-SELECT * FROM messages;
+SELECT *
+FROM conversations;
+
+INSERT INTO conversations (user_message, chatbot_message)
+VALUES ('Hello', 'how can I help you');
+
+TRUNCATE TABLE conversations;

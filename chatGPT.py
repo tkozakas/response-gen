@@ -11,10 +11,6 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 text = sys.argv[1]
 
-# Print input text
-print("Input: " + text)
-
-print("Generating...")
 # Generate a response using OpenAI's GPT-3 API
 response = openai.ChatCompletion.create(
 model='gpt-3.5-turbo',
@@ -31,5 +27,5 @@ for sub in response["choices"][0]["message"]["content"]:
     res.append(sub.replace("\n", ""))
 
 # Print the response text
-print("Response: " + "".join(res))
+print("".join(res))
 

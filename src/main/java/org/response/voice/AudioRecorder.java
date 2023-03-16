@@ -4,6 +4,7 @@ import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+
 /**
  * @author Tomas Kozakas
  */
@@ -43,7 +44,12 @@ public class AudioRecorder {
             // Create a flag to indicate when to stop recording
             boolean stopped = false;
 
-            // Read data from the line and write it to the buffer until stopped
+            // Set a maximum recording duration (in seconds)
+            int maxDurationSeconds = 5;
+            long maxDurationMillis = maxDurationSeconds * 1000;
+            long startTimeMillis = System.currentTimeMillis();
+
+            // Read data from the line and write it to the buffer until stopped or max duration is reached
             int numBytesRead;
             byte[] data = new byte[line.getBufferSize() / 5];
             while (!stopped) {
@@ -51,7 +57,7 @@ public class AudioRecorder {
                 out.write(data, 0, numBytesRead);
 
                 // Check if the recording has stopped (i.e., if there's no sound)
-                int silenceThreshold = 115; // adjust as needed
+                int silenceThreshold = 100; // adjust as needed
                 boolean hasSound = false;
                 for (byte b : data) {
                     if (b > silenceThreshold || b < -silenceThreshold) {
@@ -62,7 +68,14 @@ public class AudioRecorder {
                 if (!hasSound) {
                     stopped = true;
                 }
+
+                // Check if the maximum duration has been reached
+                long elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis;
+                if (elapsedTimeMillis >= maxDurationMillis) {
+                    stopped = true;
+                }
             }
+
 
             // Create an AudioInputStream from the buffered data
             AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(out.toByteArray()), format, out.size());
