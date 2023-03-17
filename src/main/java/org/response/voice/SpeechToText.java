@@ -23,7 +23,6 @@ public class SpeechToText {
     private String text;
 
     public SpeechToText() throws IOException {
-        // JSON key path
         String googleAuthKeyPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
         // Load the Google Cloud credentials from a JSON file
         GoogleCredentials credentials = GoogleCredentials.fromStream(
@@ -38,13 +37,12 @@ public class SpeechToText {
         // Builds the recognition request
         config = RecognitionConfig.newBuilder()
                 .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-                .setLanguageCode("ru")
+                .setLanguageCode("en-US")
                 .setSampleRateHertz(16000)
                 .build();
     }
 
     public void recognize() {
-        // Create the SpeechClient using the SpeechSettings object
         try (SpeechClient speechClient = SpeechClient.create(settings)) {
             // The path to the audio file to transcribe
             String filename = "audio.wav";

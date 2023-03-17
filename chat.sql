@@ -6,10 +6,9 @@ CREATE TABLE conversations
     chatbot_message TEXT      NOT NULL
 );
 
-SELECT *
-FROM conversations;
+SELECT * FROM conversations;
 
 INSERT INTO conversations (user_message, chatbot_message)
-VALUES ('Hello', 'how can I help you');
+VALUES ('', ' ');
 
 TRUNCATE TABLE conversations;

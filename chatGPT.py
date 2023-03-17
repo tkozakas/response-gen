@@ -17,7 +17,7 @@ model='gpt-3.5-turbo',
   messages=[
     {"role": "user", "content": text}],
 max_tokens=100,
-temperature=1,
+temperature=2,
 )
 
 # Removing newline character from string

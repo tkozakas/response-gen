@@ -41,9 +41,7 @@ public class AudioRecorder {
             // Use a buffer to capture the recorded audio data
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-            // Create a flag to indicate when to stop recording
             boolean stopped = false;
-
             // Set a maximum recording duration (in seconds)
             int maxDurationSeconds = 5;
             long maxDurationMillis = maxDurationSeconds * 1000;
