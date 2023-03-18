@@ -11,56 +11,60 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * @author Tomas Kozakas
  */
 
 public class ResponseApplication {
+    private static MessageDatabase messageDatabase;
+
     @SneakyThrows
     public static void main(String[] args) {
-        ProcessBuilder pb;
-
         AudioRecorder audioRecorder = new AudioRecorder();
         SpeechToText speechToText = new SpeechToText();
-        MessageDatabase messageDatabase = new MessageDatabase();
+        messageDatabase = new MessageDatabase();
         List<Message> messageList = messageDatabase.getAll();
 
 
-        // Load conversation with previous messages
-        if (messageList != null) {
-            StringBuilder lastMessages = new StringBuilder();
-            messageList.forEach(m -> lastMessages
-                    .append("user: ")
-                    .append(m.getUserMessage())
-                    .append("\n")
-                    .append("chatGPT: ")
-                    .append(m.getChatbotMessage())
-                    .append('\n'));
-            System.out.println("Last messages: \n" + lastMessages);
-            pb = new ProcessBuilder("python", "chatGPT.py",
-                    "<<user:>> is me and <<chatGPT:>> is you. Now you answer and don't write <<user:>> or <<chatGPT>> at the start. This is out last messages: " + lastMessages);
-            outputProcess(pb);
-        }
-
-        audioRecorder.openLine();
         System.out.println("Start speaking to chatGPT");
-        while (true) {
-            audioRecorder.startRecording("audio.wav");
 
-            speechToText.recognize();
-            String userMessage = speechToText.getText();
+//        AtomicBoolean keepRecording = new AtomicBoolean(true);
+//        Thread audioThread = new Thread(() -> {
+//            audioRecorder.openLine();
+//            while (keepRecording.get()) {
+//                audioRecorder.startRecording("audio.wav");
+//                speechToText.recognize("audio.wav");
+//                String userMessage = speechToText.getText();
+//                if (userMessage != null) {
+//                    System.out.println(userMessage);
+//                    response(userMessage);
+//                }
+//                audioRecorder.stopRecording();
+//            }
+//        });
+//        audioThread.start();
 
-            if (userMessage != null) {
-                System.out.println("Input: " + userMessage);
-
-                // create a ProcessBuilder for running the Python program
-                pb = new ProcessBuilder("python", "chatGPT.py", userMessage);
-                pb.redirectErrorStream(true); // redirect the error stream to the standard output
-                String botMessage = outputProcess(pb);
-                messageDatabase.save(new Message(userMessage, botMessage));
+        // Create a separate thread for reading input from console
+        Thread consoleThread = new Thread(() -> {
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                String userMessage = scanner.nextLine();
+                response(userMessage);
             }
-        }
+        });
+        consoleThread.start();
+
+    }
+
+    @SneakyThrows
+    private static void response(String userMessage) {
+        ProcessBuilder pb = new ProcessBuilder("python", "chatGPT.py", userMessage);
+        pb.redirectErrorStream(true);
+        String botMessage = outputProcess(pb);
+
+        messageDatabase.save(new Message(userMessage, botMessage));
     }
 
     private static String outputProcess(ProcessBuilder pb) throws IOException {
@@ -79,3 +83,4 @@ public class ResponseApplication {
         return message.toString();
     }
 }
+

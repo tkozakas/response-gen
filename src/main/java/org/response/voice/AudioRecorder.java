@@ -1,9 +1,13 @@
 package org.response.voice;
 
+import lombok.SneakyThrows;
+
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * @author Tomas Kozakas
@@ -19,21 +23,6 @@ public class AudioRecorder {
         if (!AudioSystem.isLineSupported(info)) {
             throw new LineUnavailableException("Line not supported");
         }
-    }
-
-    public void openLine() {
-        try {
-            line = (TargetDataLine) AudioSystem.getLine(info);
-            line.open(format);
-            line.start();
-        } catch (LineUnavailableException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void closeLine() {
-        line.stop();
-        line.close();
     }
 
     public void startRecording(String fileName) {
@@ -66,15 +55,12 @@ public class AudioRecorder {
                 if (!hasSound) {
                     stopped = true;
                 }
-
                 // Check if the maximum duration has been reached
                 long elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis;
                 if (elapsedTimeMillis >= maxDurationMillis) {
                     stopped = true;
                 }
             }
-
-
             // Create an AudioInputStream from the buffered data
             AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(out.toByteArray()), format, out.size());
 
@@ -83,5 +69,19 @@ public class AudioRecorder {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    @SneakyThrows
+    public void stopRecording() {
+        Files.deleteIfExists(Paths.get("audio.wav"));
+        line.stop();
+        line.close();
+    }
+
+    @SneakyThrows
+    public void openLine() {
+        line = (TargetDataLine) AudioSystem.getLine(info);
+        line.open(format);
+        line.start();
     }
 }

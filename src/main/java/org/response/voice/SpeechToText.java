@@ -42,10 +42,8 @@ public class SpeechToText {
                 .build();
     }
 
-    public void recognize() {
+    public void recognize(String filename) {
         try (SpeechClient speechClient = SpeechClient.create(settings)) {
-            // The path to the audio file to transcribe
-            String filename = "audio.wav";
             Path path = Paths.get(filename);
             byte[] data = Files.readAllBytes(path);
             ByteString audioBytes = ByteString.copyFrom(data);
@@ -69,4 +67,5 @@ public class SpeechToText {
             throw new RuntimeException(e);
         }
     }
+
 }
