@@ -25,21 +25,13 @@ public class SpeechToText {
     public SpeechToText() throws IOException {
         String googleAuthKeyPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
         // Load the Google Cloud credentials from a JSON file
-        GoogleCredentials credentials = GoogleCredentials.fromStream(
-                new FileInputStream(googleAuthKeyPath)
-        );
+        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(googleAuthKeyPath));
 
         // Build the SpeechSettings object with the credentials
-        settings = SpeechSettings.newBuilder()
-                .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
-                .build();
+        settings = SpeechSettings.newBuilder().setCredentialsProvider(FixedCredentialsProvider.create(credentials)).build();
 
         // Builds the recognition request
-        config = RecognitionConfig.newBuilder()
-                .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-                .setLanguageCode("en-US")
-                .setSampleRateHertz(16000)
-                .build();
+        config = RecognitionConfig.newBuilder().setEncoding(RecognitionConfig.AudioEncoding.LINEAR16).setLanguageCode("en-US").setSampleRateHertz(16000).build();
     }
 
     public void recognize(String filename) {
@@ -48,12 +40,11 @@ public class SpeechToText {
             byte[] data = Files.readAllBytes(path);
             ByteString audioBytes = ByteString.copyFrom(data);
 
-            RecognitionAudio audio = RecognitionAudio.newBuilder()
-                    .setContent(audioBytes)
-                    .build();
+            RecognitionAudio audio = RecognitionAudio.newBuilder().setContent(audioBytes).build();
 
             // Performs speech recognition on the audio file
             RecognizeResponse response = speechClient.recognize(config, audio);
+
             List<SpeechRecognitionResult> results = response.getResultsList();
             if (!results.isEmpty()) {
                 // Prints the transcribed text
