@@ -47,11 +47,15 @@ public class ChatgptService {
         HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
         JsonReader reader = Json.createReader(new StringReader(httpResponse.body()));
-        JsonObject responseJson = reader.readObject();
-
-        JsonObject choice = responseJson.getJsonArray("choices").getJsonObject(0);
-        JsonObject message = choice.getJsonObject("message");
-        String messageContent = message.getString("content");
+        String messageContent;
+        try {
+            JsonObject responseJson = reader.readObject();
+            JsonObject choice = responseJson.getJsonArray("choices").getJsonObject(0);
+            JsonObject message = choice.getJsonObject("message");
+            messageContent = message.getString("content");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         return messageContent;
     }

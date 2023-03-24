@@ -4,6 +4,8 @@ import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
+import io.github.cdimascio.dotenv.Dotenv;
+
 import lombok.Getter;
 
 import java.io.FileInputStream;
@@ -13,9 +15,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-/**
- * @author Tomas Kozakas
- */
 @Getter
 public class SpeechToText {
     private final SpeechSettings settings;
@@ -23,8 +22,10 @@ public class SpeechToText {
     private String text;
 
     public SpeechToText() throws IOException {
-        String googleAuthKeyPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+        Dotenv dotenv = Dotenv.load();
+        String googleAuthKeyPath = dotenv.get("GOOGLE_APPLICATION_CREDENTIALS");
         // Load the Google Cloud credentials from a JSON file
+        assert googleAuthKeyPath != null;
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(googleAuthKeyPath));
 
         // Build the SpeechSettings object with the credentials
@@ -34,12 +35,11 @@ public class SpeechToText {
         config = RecognitionConfig.newBuilder().setEncoding(RecognitionConfig.AudioEncoding.LINEAR16).setLanguageCode("en-US").setSampleRateHertz(16000).build();
     }
 
-    public void recognize(String filename) {
+    public String recognize(String filename) {
         try (SpeechClient speechClient = SpeechClient.create(settings)) {
             Path path = Paths.get(filename);
             byte[] data = Files.readAllBytes(path);
             ByteString audioBytes = ByteString.copyFrom(data);
-
             RecognitionAudio audio = RecognitionAudio.newBuilder().setContent(audioBytes).build();
 
             // Performs speech recognition on the audio file
@@ -47,16 +47,14 @@ public class SpeechToText {
 
             List<SpeechRecognitionResult> results = response.getResultsList();
             if (!results.isEmpty()) {
-                // Prints the transcribed text
-                for (SpeechRecognitionResult result : results) {
-                    SpeechRecognitionAlternative alternative = result.getAlternativesList().get(0);
-                    text = alternative.getTranscript();
-                }
+                // Returns the transcribed text
+                SpeechRecognitionAlternative alternative = results.get(0).getAlternativesList().get(0);
+                return alternative.getTranscript();
             }
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return null;
     }
-
 }

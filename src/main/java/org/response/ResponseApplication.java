@@ -5,7 +5,6 @@ import org.response.openai.Chatgpt;
 import org.response.openai.service.ChatgptService;
 import org.response.voice.AudioRecorder;
 import org.response.voice.SpeechToText;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Scanner;
@@ -18,15 +17,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ResponseApplication {
     @SneakyThrows
     public static void main(String[] args) {
-        ApplicationContext context = new AnnotationConfigApplicationContext(Chatgpt.class);
-        ChatgptService chatgptService = context.getBean(ChatgptService.class);
+        ChatgptService chatgptService = new AnnotationConfigApplicationContext(Chatgpt.class).getBean(ChatgptService.class);
         AudioRecorder audioRecorder = new AudioRecorder();
         SpeechToText speechToText = new SpeechToText();
 
         System.out.println("Start speaking to chatGPT");
 
         audio(chatgptService, audioRecorder, speechToText);
-        //console(chatgptService);
+        console(chatgptService);
     }
 
     private static void console(ChatgptService chatgptService) {
@@ -47,7 +45,7 @@ public class ResponseApplication {
             audioRecorder.openLine();
             while (keepRecording.get()) {
                 audioRecorder.startRecording("audio.wav");
-                //speechToText.recognize("audio.wav");
+                speechToText.recognize("audio.wav");
                 String userMessage = speechToText.getText();
                 if (userMessage != null) {
                     String responseMessage = chatgptService.sendMessage(userMessage);
