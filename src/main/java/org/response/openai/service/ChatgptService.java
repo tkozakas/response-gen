@@ -1,7 +1,8 @@
 package org.response.openai.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.SneakyThrows;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.response.openai.dto.ChatRequest;
 import org.response.openai.dto.Message;
 import org.response.openai.properties.ChatgptProperties;
@@ -27,7 +28,7 @@ public class ChatgptService {
     @SneakyThrows
     public String sendMessage(String input) {
         ChatRequest request = ChatRequest.builder()
-                .model("gpt-3.5-turbo")
+                .model(chatgptProperties.getApiModel())
                 .messages(List.of(Message.builder()
                         .role("user")
                         .content(input)
@@ -43,20 +44,23 @@ public class ChatgptService {
                 .header("Authorization", "Bearer " + chatgptProperties.getApiKey())
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
+
         HttpClient httpClient = HttpClient.newBuilder().build();
         HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-        JsonReader reader = Json.createReader(new StringReader(httpResponse.body()));
-        String messageContent;
-        try {
-            JsonObject responseJson = reader.readObject();
-            JsonObject choice = responseJson.getJsonArray("choices").getJsonObject(0);
-            JsonObject message = choice.getJsonObject("message");
-            messageContent = message.getString("content");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        String messageContent = null;
+        if (httpResponse.statusCode() == 200) {
+            JsonReader reader = Json.createReader(new StringReader(httpResponse.body()));
+            try {
+                JsonObject responseJson = reader.readObject();
+                JsonObject choice = responseJson.getJsonArray("choices").getJsonObject(0);
+                JsonObject message = choice.getJsonObject("message");
+                messageContent = message.getString("content");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
-
         return messageContent;
+
     }
 }
