@@ -26,14 +26,10 @@ public class ChatgptService {
     private final ChatgptProperties chatgptProperties = new ChatgptProperties();
 
     @SneakyThrows
-    public String sendMessage(String input) {
+    public String sendMessage(List<RequestMessage> requestMessageList) {
         ChatRequest request = ChatRequest.builder()
                 .model(chatgptProperties.getApiModel())
-                .messages(List.of(RequestMessage.builder()
-                        .role("user")
-                        .content(input)
-                        .build()
-                ))
+                .messages(requestMessageList)
                 .build();
         ObjectMapper objectMapper = new ObjectMapper();
         String requestBody = objectMapper.writeValueAsString(request);

@@ -2,6 +2,7 @@ package org.response.openai;
 
 import lombok.SneakyThrows;
 import org.response.openai.dto.Message;
+import org.response.openai.dto.RequestMessage;
 import org.response.openai.service.ChatgptService;
 import org.response.openai.service.MessageService;
 import org.response.openai.voice.AudioRecorder;
@@ -10,6 +11,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -33,6 +35,8 @@ public class Chatgpt implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        chatgptService.sendMessage(messageService.getAllRequestMessages());
+
         console(chatgptService, messageService);
         audio(chatgptService, messageService);
     }
@@ -42,7 +46,7 @@ public class Chatgpt implements CommandLineRunner {
             Scanner scanner = new Scanner(System.in);
             while (true) {
                 String userMessage = scanner.nextLine();
-                String responseMessage = chatgptService.sendMessage(userMessage);
+                String responseMessage = chatgptService.sendMessage(List.of(new RequestMessage("user", userMessage)));
                 System.out.println("Response: " + responseMessage);
                 messageService.save(new Message(userMessage, responseMessage));
             }
@@ -63,7 +67,7 @@ public class Chatgpt implements CommandLineRunner {
                 String userMessage = speechToText.recognize("audio.wav");
                 if (userMessage != null) {
                     System.out.println(userMessage);
-                    String responseMessage = chatgptService.sendMessage(userMessage);
+                    String responseMessage = chatgptService.sendMessage(List.of(new RequestMessage("user", userMessage)));
                     System.out.println("Response: " + responseMessage);
                     messageService.save(new Message(userMessage, responseMessage));
                 }
