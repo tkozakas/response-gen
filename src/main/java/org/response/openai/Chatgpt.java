@@ -35,18 +35,31 @@ public class Chatgpt implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        chatgptService.sendMessage(messageService.getAllRequestMessages());
+        List<RequestMessage> messageList = messageService.getAllRequestMessages();
+        chatgptService.sendMessage(messageList);
 
-        console(chatgptService, messageService);
-        audio(chatgptService, messageService);
+        console(chatgptService, messageService, messageList);
+        audio(chatgptService, messageService, messageList);
     }
 
-    private static void console(ChatgptService chatgptService, MessageService messageService) {
+    private static void console(ChatgptService chatgptService, MessageService messageService, List<RequestMessage> messageList) {
         Thread consoleThread = new Thread(() -> {
             Scanner scanner = new Scanner(System.in);
             while (true) {
                 String userMessage = scanner.nextLine();
-                String responseMessage = chatgptService.sendMessage(List.of(new RequestMessage("user", userMessage)));
+
+                RequestMessage requestMessage = new RequestMessage();
+                requestMessage.setRole("user");
+                requestMessage.setContent(userMessage);
+                messageList.add(requestMessage);
+
+                String responseMessage = chatgptService.sendMessage(messageList);
+
+                requestMessage = new RequestMessage();
+                requestMessage.setRole("assistant");
+                requestMessage.setContent(responseMessage);
+                messageList.add(requestMessage);
+
                 System.out.println("Response: " + responseMessage);
                 messageService.save(new Message(userMessage, responseMessage));
             }
@@ -55,7 +68,7 @@ public class Chatgpt implements CommandLineRunner {
     }
 
     @SneakyThrows
-    private static void audio(ChatgptService chatgptService, MessageService messageService) {
+    private static void audio(ChatgptService chatgptService, MessageService messageService, List<RequestMessage> messageList) {
         AudioRecorder audioRecorder = new AudioRecorder();
         SpeechToText speechToText = new SpeechToText();
         AtomicBoolean keepRecording = new AtomicBoolean(true);
@@ -67,7 +80,19 @@ public class Chatgpt implements CommandLineRunner {
                 String userMessage = speechToText.recognize("audio.wav");
                 if (userMessage != null) {
                     System.out.println(userMessage);
-                    String responseMessage = chatgptService.sendMessage(List.of(new RequestMessage("user", userMessage)));
+
+                    RequestMessage requestMessage = new RequestMessage();
+                    requestMessage.setRole("user");
+                    requestMessage.setContent(userMessage);
+                    messageList.add(requestMessage);
+
+                    String responseMessage = chatgptService.sendMessage(messageList);
+
+                    requestMessage = new RequestMessage();
+                    requestMessage.setRole("assistant");
+                    requestMessage.setContent(responseMessage);
+                    messageList.add(requestMessage);
+
                     System.out.println("Response: " + responseMessage);
                     messageService.save(new Message(userMessage, responseMessage));
                 }
