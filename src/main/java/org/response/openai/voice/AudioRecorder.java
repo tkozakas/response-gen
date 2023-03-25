@@ -1,4 +1,4 @@
-package org.response.voice;
+package org.response.openai.voice;
 
 import lombok.SneakyThrows;
 
@@ -27,48 +27,54 @@ public class AudioRecorder {
 
     public void startRecording(String fileName) {
         try {
-            // Use a buffer to capture the recorded audio data
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-            boolean stopped = false;
-            // Set a maximum recording duration (in seconds)
-            int maxDurationSeconds = 5;
-            long maxDurationMillis = maxDurationSeconds * 1000;
-            long startTimeMillis = System.currentTimeMillis();
+            // Set a silence threshold (in dB)
+            int silenceThresholdDb = -60; // adjust as needed
 
-            // Read data from the line and write it to the buffer until stopped or max duration is reached
+            // Set the length of silence required to stop recording (in milliseconds)
+            long silenceDurationMs = 1000;
+
+            // Read data from the line and write it to the buffer until stopped
             int numBytesRead;
             byte[] data = new byte[line.getBufferSize() / 5];
-            while (!stopped) {
+            long lastSoundMillis = System.currentTimeMillis();
+            boolean hasSound = false;
+            while (true) {
                 numBytesRead = line.read(data, 0, data.length);
                 out.write(data, 0, numBytesRead);
 
                 // Check if the recording has stopped (i.e., if there's no sound)
-                int silenceThreshold = 100; // adjust as needed
-                boolean hasSound = false;
-                for (byte b : data) {
-                    if (b > silenceThreshold || b < -silenceThreshold) {
-                        hasSound = true;
-                        break;
-                    }
+                double rms = calculateRMS(data);
+                double db = 20 * Math.log10(rms / 32767.0);
+                if (db > silenceThresholdDb) {
+                    lastSoundMillis = System.currentTimeMillis();
+                    hasSound = true;
                 }
-                if (!hasSound) {
-                    stopped = true;
+                if (hasSound && (System.currentTimeMillis() - lastSoundMillis) > silenceDurationMs) {
+                    break;
                 }
-                // Check if the maximum duration has been reached
-                long elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis;
-                if (elapsedTimeMillis >= maxDurationMillis) {
-                    stopped = true;
-                }
+                // System.out.println("Sounds: " + hasSound + ", db:" + db);
             }
+
             // Create an AudioInputStream from the buffered data
             AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(out.toByteArray()), format, out.size());
 
             // Write the audio data to a file
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, new File(fileName));
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public static double calculateRMS(byte[] data) {
+        long sum = 0;
+        for (byte b : data) {
+            sum += b * b;
+        }
+        double mean = (double) sum / data.length;
+        return Math.sqrt(mean);
     }
 
     @SneakyThrows

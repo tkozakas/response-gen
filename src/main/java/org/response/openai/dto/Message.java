@@ -20,15 +20,15 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "role", nullable = false)
-    private String role;
+    @Column(name = "user_content", nullable = false)
+    private String userContent;
 
-    @Column(name = "content", nullable = false)
-    private String content;
+    @Column(name = "assistant_content", nullable = false)
+    private String assistantContent;
 
 
-    public Message(String role, String content) {
-        this.role = role;
-        this.content = content;
+    public Message(String userContent, String assistantContent) {
+        this.userContent = userContent;
+        this.assistantContent = assistantContent;
     }
 }

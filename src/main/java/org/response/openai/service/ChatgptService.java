@@ -4,7 +4,7 @@ package org.response.openai.service;
 import lombok.SneakyThrows;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.response.openai.dto.ChatRequest;
-import org.response.openai.dto.Message;
+import org.response.openai.dto.RequestMessage;
 import org.response.openai.properties.ChatgptProperties;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ public class ChatgptService {
     public String sendMessage(String input) {
         ChatRequest request = ChatRequest.builder()
                 .model(chatgptProperties.getApiModel())
-                .messages(List.of(Message.builder()
+                .messages(List.of(RequestMessage.builder()
                         .role("user")
                         .content(input)
                         .build()

@@ -1,4 +1,4 @@
-package org.response.voice;
+package org.response.openai.voice;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -19,7 +19,6 @@ import java.util.List;
 public class SpeechToText {
     private final SpeechSettings settings;
     private final RecognitionConfig config;
-    private String text;
 
     public SpeechToText() throws IOException {
         Dotenv dotenv = Dotenv.load();
