@@ -4,3 +4,5 @@ CREATE TABLE messages
     role    VARCHAR(255) NOT NULL,
     content VARCHAR(255) NOT NULL
 );
+
+TRUNCATE messages;

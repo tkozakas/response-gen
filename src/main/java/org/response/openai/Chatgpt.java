@@ -7,6 +7,7 @@ import org.response.openai.service.ChatgptService;
 import org.response.openai.service.MessageService;
 import org.response.openai.voice.AudioRecorder;
 import org.response.openai.voice.SpeechToText;
+import org.response.openai.voice.TextToSpeech;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -47,21 +48,7 @@ public class Chatgpt implements CommandLineRunner {
             Scanner scanner = new Scanner(System.in);
             while (true) {
                 String userMessage = scanner.nextLine();
-
-                RequestMessage requestMessage = new RequestMessage();
-                requestMessage.setRole("user");
-                requestMessage.setContent(userMessage);
-                messageList.add(requestMessage);
-
-                String responseMessage = chatgptService.sendMessage(messageList);
-
-                requestMessage = new RequestMessage();
-                requestMessage.setRole("assistant");
-                requestMessage.setContent(responseMessage);
-                messageList.add(requestMessage);
-
-                System.out.println("Response: " + responseMessage);
-                messageService.save(new Message(userMessage, responseMessage));
+                response(chatgptService, messageService, messageList, userMessage);
             }
         });
         consoleThread.start();
@@ -80,25 +67,30 @@ public class Chatgpt implements CommandLineRunner {
                 String userMessage = speechToText.recognize("audio.wav");
                 if (userMessage != null) {
                     System.out.println(userMessage);
-
-                    RequestMessage requestMessage = new RequestMessage();
-                    requestMessage.setRole("user");
-                    requestMessage.setContent(userMessage);
-                    messageList.add(requestMessage);
-
-                    String responseMessage = chatgptService.sendMessage(messageList);
-
-                    requestMessage = new RequestMessage();
-                    requestMessage.setRole("assistant");
-                    requestMessage.setContent(responseMessage);
-                    messageList.add(requestMessage);
-
-                    System.out.println("Response: " + responseMessage);
-                    messageService.save(new Message(userMessage, responseMessage));
+                    response(chatgptService, messageService, messageList, userMessage);
                 }
             }
         });
         audioThread.start();
+    }
+
+    private static void response(ChatgptService chatgptService, MessageService messageService, List<RequestMessage> messageList, String userMessage) {
+        TextToSpeech textToSpeech = new TextToSpeech();
+        RequestMessage requestMessage = new RequestMessage();
+        requestMessage.setRole("user");
+        requestMessage.setContent(userMessage);
+        messageList.add(requestMessage);
+
+        String responseMessage = chatgptService.sendMessage(messageList);
+
+        requestMessage = new RequestMessage();
+        requestMessage.setRole("assistant");
+        requestMessage.setContent(responseMessage);
+        messageList.add(requestMessage);
+
+        System.out.println("Response: " + responseMessage);
+        textToSpeech.say(responseMessage);
+        messageService.save(new Message(userMessage, responseMessage));
     }
 }
 
